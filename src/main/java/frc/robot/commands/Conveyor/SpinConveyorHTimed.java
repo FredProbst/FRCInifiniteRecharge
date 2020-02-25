@@ -6,16 +6,15 @@
 /*----------------------------------------------------------------------------*/
 
 // Spins the conveyor motor for a specified amount of time.
-package frc.robot.commands;
+package frc.robot.commands.Conveyor;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.TestingDashboard;
-import frc.robot.subsystems.BallIntake;
 import frc.robot.subsystems.Conveyor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SpinConveyorVTimed extends CommandBase {
+public class SpinConveyorHTimed extends CommandBase {
   /**
    * Creates a new SpinConveyor1Timed.
    */
@@ -23,42 +22,47 @@ public class SpinConveyorVTimed extends CommandBase {
    Timer m_timer;
    Conveyor m_conveyor;
    double m_period;
+   double m_speed1, m_speed2;
 
-  public SpinConveyorVTimed() {
+  public SpinConveyorHTimed(double hSpeed1, double hSpeed2, double period) {
     // Use addRequirements() here to declare subsystem dependencies.
     
     addRequirements(Conveyor.getInstance());
     m_timer = new Timer();
     m_conveyor = Conveyor.getInstance();
+    m_speed1 = hSpeed1;
+    m_speed2 = hSpeed2;
+    m_period = period;
 
   }
 
   public static void registerWithTestingDashboard() {
     Conveyor conveyor = Conveyor.getInstance();
-    SpinConveyorVTimed cmd = new SpinConveyorVTimed();
+    double speed1 = SmartDashboard.getNumber("ConveyorHMotor1Speed",0.5);
+    double speed2 = SmartDashboard.getNumber("ConveyorHMotor2Speed",0.5);
+    double period = SmartDashboard.getNumber("ConveyorHMotorTimeout", 5); // default of 5 seconds
+    SpinConveyorHTimed cmd = new SpinConveyorHTimed(speed1, speed2, period);
     TestingDashboard.getInstance().registerCommand(conveyor, "Timed", cmd);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_period = SmartDashboard.getNumber("ConveyorVMotoryTimeout", 5); // default of 5 seconds
     m_timer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    double speed = SmartDashboard.getNumber("ConveyorVMotorSpeed",0.5);
-    m_conveyor.spinVConveyor(speed);
+    m_conveyor.spinHConveyorL(m_speed1);
+    m_conveyor.spinHConveyorR(m_speed2);
 
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_conveyor.spinVConveyor(0);
+    m_conveyor.spinHConveyors(0);
   }
 
   // Returns true when the command should end.

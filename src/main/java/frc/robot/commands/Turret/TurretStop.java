@@ -5,60 +5,49 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-//This command spins the spinner motor for a certain amount of time.
+package frc.robot.commands.Turret;
 
-package frc.robot.commands;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.TestingDashboard;
-import frc.robot.subsystems.Spinner;
+import frc.robot.subsystems.Turret;
 
-public class SpinSpinnerMotorTimed extends CommandBase {
-  Timer m_timer;
-  double m_period;
-  Spinner m_spinner;
+public class TurretStop extends CommandBase {
+  Turret m_turret;
   /**
-   * Creates a new SpinSpinnerMotorTimed.
+   * Creates a new TurretStop.
    */
-  public SpinSpinnerMotorTimed() {
+  public TurretStop() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(Spinner.getInstance());
-    m_timer = new Timer();
-    m_spinner = Spinner.getInstance();
+    m_turret = Turret.getInstance();
+    addRequirements(m_turret);
   }
 
   public static void registerWithTestingDashboard() {
-    Spinner spinner = Spinner.getInstance();
-    SpinSpinnerMotorTimed cmd = new SpinSpinnerMotorTimed();
-    TestingDashboard.getInstance().registerCommand(spinner, "Timed", cmd);
+    Turret turret = Turret.getInstance();
+    TurretStop cmd = new TurretStop();
+    TestingDashboard.getInstance().registerCommand(turret, "Basic", cmd);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_timer.start();
-    m_period = SmartDashboard.getNumber("SpinnerMotorPeriod", 5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = SmartDashboard.getNumber("SpinnerMotorSpeed",0.2);
-    m_spinner.spin(speed);
+    m_turret.spinTurretMotor(0);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_spinner.spin(0);
+    m_turret.spinTurretMotor(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    boolean timerExpired = m_timer.hasPeriodPassed(m_period);
-    return timerExpired;
+    return true;
   }
 }

@@ -9,7 +9,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.Auto.*;
+import frc.robot.commands.BallIntake.*;
+import frc.robot.commands.Conveyor.*;
+import frc.robot.commands.Drive.*;
+import frc.robot.commands.Shooter.*;
+import frc.robot.commands.Spinner.*;
+import frc.robot.commands.Turret.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -27,13 +34,16 @@ public class RobotContainer {
   private final Drive drive;
   private final Climber climber;
   private final BallIntake ballIntake;
+  private final Conveyor conveyor;
   private final Shooter shooter;
   private final Spinner spinner;
+  private final Turret turret;
   private final Vision vision;
 
   //Commands
   private final DefaultDrive defaultdrive;
   private final DefaultIntake defaultintake;
+  private final DefaultTurret defaultturret;
   
   //OI
   private static RobotContainer robotContainer;
@@ -49,8 +59,10 @@ public class RobotContainer {
     drive = Drive.getInstance();
     climber = Climber.getInstance();
     ballIntake = BallIntake.getInstance();
+    conveyor = Conveyor.getInstance();
     shooter = Shooter.getInstance();
     spinner = Spinner.getInstance();
+    turret = Turret.getInstance();
     vision = Vision.getInstance();
 
     //Default command instantiation
@@ -58,6 +70,8 @@ public class RobotContainer {
     drive.setDefaultCommand(defaultdrive);
     defaultintake = new DefaultIntake(ballIntake);
     ballIntake.setDefaultCommand(defaultintake);
+    defaultturret = new DefaultTurret(turret);
+    turret.setDefaultCommand(defaultturret);
 
     //OI Device instantiation
     OI.getInstance();
@@ -77,6 +91,19 @@ public class RobotContainer {
     TimedForward.registerWithTestingDashboard();
     SpinBothConveyorsTimed.registerWithTestingDashboard();
     SpinShooter.registerWithTestingDashboard();
+    TurretStop.registerWithTestingDashboard();
+    TurretLeft.registerWithTestingDashboard();
+    TurretRight.registerWithTestingDashboard();
+    ShootAndCrossLineAuto.registerWithTestingDashboard();
+    BallIntakeDown.registerWithTestingDashboard();
+    BallIntakeUp.registerWithTestingDashboard();
+    ShooterUp.registerWithTestingDashboard();
+    ShooterDown.registerWithTestingDashboard();
+    ConveyorPrepBalls.registerWithTestingDashboard();
+    PIDTurret.registerWithTestingDashboard();
+    PIDTopShooter.registerWithTestingDashboard();
+    PIDBottomShooter.registerWithTestingDashboard();
+    Wait.registerWithTestingDashboard();
 
     // Create Testing Dashboard
     TestingDashboard.getInstance().createTestingDashboard();
@@ -109,7 +136,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //TODO: Fill with autocommand
-    return null;
+    // TODO: This needs to be changed to collect the autonomous command
+    // from a chooser on ShuffleBoard
+    return (new ShootAndCrossLineAuto());
   }
 }

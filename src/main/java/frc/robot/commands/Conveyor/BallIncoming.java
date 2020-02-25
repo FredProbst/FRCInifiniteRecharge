@@ -5,33 +5,18 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands;
+package frc.robot.commands.Conveyor;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.OI;
-import frc.robot.TestingDashboard;
-import frc.robot.input.XboxController.XboxAxis;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Conveyor;
 
-public class DefaultTurret extends CommandBase {
+public class BallIncoming extends CommandBase {
   /**
-   * Creates a new DefaultTurret.
+   * Creates a new BallIncoming.
    */
-  Turret m_turret;
-  private static OI oi;
-
-  public DefaultTurret() {
+  public BallIncoming() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(Turret.getInstance());
-    oi = OI.getInstance();
-    m_turret = Turret.getInstance();
-  }
-
-  public static void registerWithTestingDashboard() {
-    Turret turret = Turret.getInstance();
-    DefaultTurret cmd = new DefaultTurret();
-    TestingDashboard.getInstance().registerCommand(turret, "Basic", cmd);
-
+    addRequirements(Conveyor.getInstance());
   }
 
   // Called when the command is initially scheduled.
@@ -42,9 +27,6 @@ public class DefaultTurret extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // Drives the Turret with the x-axis of the left Xbox joystick.
-    double speed = oi.getXbox().getAxis(XboxAxis.kXRight);
-    m_turret.spinTurretMotor(0.75*speed);
   }
 
   // Called once the command ends or is interrupted.
@@ -55,6 +37,6 @@ public class DefaultTurret extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return Conveyor.getInstance().ballIncoming();
   }
 }

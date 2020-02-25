@@ -5,57 +5,63 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-// Spins the ball intake roller while command is active.
-package frc.robot.commands;
+package frc.robot.commands.BallIntake;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.TestingDashboard;
 import frc.robot.subsystems.BallIntake;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SpinIntakeRoller extends CommandBase {
+public class BallIntakeDown extends CommandBase {
   /**
-   * Creates a new SpinIntakeRoller.
+   * Creates a new BallIntakeDown.
    */
 
    BallIntake m_ballIntake;
-
-  public SpinIntakeRoller() {
+   DoubleSolenoid m_piston;
+   boolean m_finished = false;
+   boolean isUp = false;
+   
+  public BallIntakeDown() {
     // Use addRequirements() here to declare subsystem dependencies.
-
     addRequirements(BallIntake.getInstance());
     m_ballIntake = BallIntake.getInstance();
+    m_piston = m_ballIntake.getPiston();
   }
 
   public static void registerWithTestingDashboard() {
     BallIntake ballIntake = BallIntake.getInstance();
-    SpinIntakeRoller cmd = new SpinIntakeRoller();
+    BallIntakeDown cmd = new BallIntakeDown();
     TestingDashboard.getInstance().registerCommand(ballIntake, "Basic", cmd);
   }
-
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if(m_piston.get() == DoubleSolenoid.Value.kReverse){
+      isUp = true;
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
+  public void execute() { 
+    if(isUp){
+      m_ballIntake.lowerIntake();
+    }
 
-    double speed = SmartDashboard.getNumber("IntakeRollerSpeed",0.5);
-    m_ballIntake.spinIntakeRoller(speed);
-
+    if (m_piston.get() == DoubleSolenoid.Value.kForward) {
+      m_finished = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_ballIntake.spinIntakeRoller(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_finished;
   }
 }

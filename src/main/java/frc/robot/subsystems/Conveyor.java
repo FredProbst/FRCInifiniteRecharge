@@ -14,36 +14,34 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.RobotMap;
 import frc.robot.TestingDashboard;
 
 public class Conveyor extends SubsystemBase {
   private static Conveyor m_conveyor;
 
-  int m_numBallsStored;
+  private VictorSPX m_HconveyerL;
+  private VictorSPX m_HconveyerR;
+  private VictorSPX m_Vconveyor;
 
-  VictorSPX m_Hconveyor1;
-  VictorSPX m_Hconveyor2;
-  VictorSPX m_Vconveyor;
-
-  DigitalInput m_ballIncoming;
-  DigitalInput m_ballReadyToShoot;
+  private DigitalInput m_ballIncoming;
+  private DigitalInput m_ballReadyToShoot;
 
   private Encoder m_conveyor1Encoder;
   private Encoder m_conveyor2Encoder;
+  
   /**
    * Creates a new Conveyor.
    */
-  public Conveyor() {
-    m_numBallsStored = 0;
+  private Conveyor() {
 
-    m_Hconveyor1 = new VictorSPX(RobotMap.B_HCONVEYOR1);
-    m_Hconveyor2 = new VictorSPX(RobotMap.B_HCONVEYOR2);
-    m_Vconveyor = new VictorSPX(RobotMap.B_VCONVEYOR);
+    m_HconveyerL = new VictorSPX(RobotMap.C_HCONVEYOR_L);
+    m_HconveyerR = new VictorSPX(RobotMap.C_HCONVEYOR_R);
+    m_Vconveyor = new VictorSPX(RobotMap.C_VCONVEYOR);
 
-    m_ballIncoming = new DigitalInput(RobotMap.B_INCOMING);
-    m_ballReadyToShoot = new DigitalInput(RobotMap.B_READYTOSHOOT);
-
+    m_ballIncoming = new DigitalInput(RobotMap.C_INCOMING);
+    m_ballReadyToShoot = new DigitalInput(RobotMap.C_READYTOSHOOT);
   }
 
   public static Conveyor getInstance() {
@@ -54,36 +52,37 @@ public class Conveyor extends SubsystemBase {
     return m_conveyor;
   }
 
-  public void spinHConveyor(double speed){
-    m_Hconveyor1.set(ControlMode.PercentOutput, -speed);
-    m_Hconveyor2.set(ControlMode.PercentOutput, -speed);
+  public void spinHConveyors(double speed) {
+    spinHConveyorL(speed);
+    spinHConveyorR(speed);
   }
 
-  public void spinVConveyor(double speed){
-    m_Vconveyor.set(ControlMode.PercentOutput, -speed);
+  public void spinHConveyorL(double speed) {
+    // Note that positive is the correct direction for this belt
+    m_HconveyerL.set(ControlMode.PercentOutput, speed);
   }
 
-  public void spinBothConveyors(double hSpeed, double vSpeed){
-    m_Hconveyor1.set(ControlMode.PercentOutput, -hSpeed);
-    m_Hconveyor2.set(ControlMode.PercentOutput, -hSpeed);
-    m_Vconveyor.set(ControlMode.PercentOutput, -vSpeed);
-    
+  public void spinHConveyorR(double speed) {
+    // Note that negative is the correct direction for this belt
+    m_HconveyerR.set(ControlMode.PercentOutput, -speed);
   }
 
-  public boolean ballIncoming(){
+  public void spinVConveyor(double speed) {
+    m_Vconveyor.set(ControlMode.PercentOutput, speed);
+  }
+
+  public void spinBothConveyors(double hSpeedL, double hSpeedR, double vSpeed) {
+    spinHConveyorL(hSpeedL);
+    spinHConveyorR(hSpeedR);
+    spinVConveyor(vSpeed);
+  }
+
+  public boolean ballIncoming() {
     return !m_ballIncoming.get();
   }
 
-  public boolean ballReadyToShoot(){
+  public boolean ballReadyToShoot() {
     return !m_ballReadyToShoot.get();
-  }
-
-  public void decrementBallsStored(){
-    m_numBallsStored -= 1;
-  }
-
-  public void incrementBallsStored(){
-    m_numBallsStored += 1;
   }
 
   @Override

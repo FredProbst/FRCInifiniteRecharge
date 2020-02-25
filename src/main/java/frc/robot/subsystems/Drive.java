@@ -10,41 +10,55 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.RobotMap;
 import frc.robot.TestingDashboard;
+
 import com.kauailabs.navx.frc.AHRS;
 
 public class Drive extends SubsystemBase {
-  WPI_TalonSRX frontLeft;
-  WPI_TalonSRX frontRight;
-  VictorSPX backLeft;
-  VictorSPX backRight;
+  VictorSPX frontLeft;
+  VictorSPX frontRight;
+  WPI_TalonSRX backLeft;
+  WPI_TalonSRX backRight;
 
-  DifferentialDrive drivetrain;
+  Encoder leftEncoder, rightEncoder;
+
+  final double PULSE_PER_FOOT = 1300;
+
+  private DifferentialDrive drivetrain;
 
   private AHRS ahrs;
   
-  public static Drive drive;
+  private static Drive drive;
 
   /**
    * Creates a new Drive subsystem
    */
   private Drive() {
-    frontLeft = new WPI_TalonSRX(RobotMap.D_FRONT_LEFT);
-    frontRight = new WPI_TalonSRX(RobotMap.D_FRONT_RIGHT);
-    backLeft = new VictorSPX(RobotMap.D_BACK_LEFT);
-    backRight = new VictorSPX(RobotMap.D_BACK_RIGHT);
-    
-    backLeft.follow(frontLeft);
-    backLeft.setInverted(true);
-    backRight.follow(frontRight);
+    frontLeft = new VictorSPX(RobotMap.D_FRONT_LEFT);
+    frontRight = new VictorSPX(RobotMap.D_FRONT_RIGHT);
+    backLeft = new WPI_TalonSRX(RobotMap.D_BACK_LEFT);
+    backRight = new WPI_TalonSRX(RobotMap.D_BACK_RIGHT);
 
-    drivetrain = new DifferentialDrive(frontLeft, frontRight);
+    leftEncoder = new Encoder(RobotMap.D_LEFT_ENCODER_A, RobotMap.D_LEFT_ENCODER_B);
+    rightEncoder = new Encoder(RobotMap.D_RIGHT_ENCODER_A, RobotMap.D_RIGHT_ENCODER_B);
+    leftEncoder.setDistancePerPulse(1/PULSE_PER_FOOT);
+    rightEncoder.setDistancePerPulse(1/PULSE_PER_FOOT);
+
+    
+
+    frontLeft.follow(backLeft);
+    frontRight.follow(backRight);
+    frontRight.setInverted(true);
+
+
+    drivetrain = new DifferentialDrive(backLeft, backRight);
 
     ahrs = new AHRS(RobotMap.D_NAVX);
   }
@@ -53,8 +67,8 @@ public class Drive extends SubsystemBase {
    * Used outside of the Drive subsystem to return an instance of Drive subsystem.
    * @return Returns instance of Drive subsystem formed from constructor.
    */
-  public static Drive getInstance(){
-    if (drive == null){
+  public static Drive getInstance() {
+    if (drive == null) {
       drive = new Drive();
       TestingDashboard.getInstance().registerSubsystem(drive, "Drive");
     }
@@ -73,8 +87,28 @@ public class Drive extends SubsystemBase {
     return ahrs.getRoll();
   }
 
-  public void tankDrive(double leftSpeed, double rightSpeed){
-    drivetrain.tankDrive(-leftSpeed, rightSpeed);
+  public Encoder getLeftEncoder(){
+    return leftEncoder;
+  }
+
+  public Encoder getRightEncoder(){
+    return rightEncoder;
+  }
+
+  public void tankDrive(double leftSpeed, double rightSpeed) {
+    drivetrain.tankDrive(leftSpeed, rightSpeed);
+  }
+
+  /**
+   * Controls the drivetrain with raw voltage values
+   *
+   * @param leftVoltage  voltage fed to left side
+   * @param rightVoltage voltage fed to right side
+   */
+  public void tankDriveVoltage(double leftVoltage, double rightVoltage){
+    backLeft.setVoltage(leftVoltage);
+    backRight.setVoltage(rightVoltage);
+    drivetrain.feed();
   }
 
   @Override

@@ -5,68 +5,60 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-// Spins the conveyor motor until there is a ball ready to shoot.
-package frc.robot.commands;
+//This command spins the spinner motor for a certain amount of time.
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.BallIntake;
-import frc.robot.subsystems.Conveyor;
-import frc.robot.TestingDashboard;
+package frc.robot.commands.Spinner;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.TestingDashboard;
+import frc.robot.subsystems.Spinner;
 
-public class PrepareBallsToShoot extends CommandBase {
+public class SpinSpinnerMotorTimed extends CommandBase {
+  Timer m_timer;
+  double m_period;
+  Spinner m_spinner;
   /**
-   * Creates a new PrepareBallsToShoot.
+   * Creates a new SpinSpinnerMotorTimed.
    */
-
-   Conveyor m_conveyor;
-   Timer m_timer;
-   private static final int m_period = 10;
-
-  public PrepareBallsToShoot() {
+  public SpinSpinnerMotorTimed() {
     // Use addRequirements() here to declare subsystem dependencies.
-
-    addRequirements(Conveyor.getInstance());
-    m_conveyor = Conveyor.getInstance();
+    addRequirements(Spinner.getInstance());
     m_timer = new Timer();
-    
+    m_spinner = Spinner.getInstance();
   }
 
   public static void registerWithTestingDashboard() {
-    Conveyor conveyor = Conveyor.getInstance();
-    PrepareBallsToShoot cmd = new PrepareBallsToShoot();
-    TestingDashboard.getInstance().registerCommand(conveyor, "Basic", cmd);
+    Spinner spinner = Spinner.getInstance();
+    SpinSpinnerMotorTimed cmd = new SpinSpinnerMotorTimed();
+    TestingDashboard.getInstance().registerCommand(spinner, "Timed", cmd);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     m_timer.start();
+    m_period = SmartDashboard.getNumber("SpinnerMotorPeriod", 5);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = SmartDashboard.getNumber("Conveyor1MotorSpeed",0.5);
-    if (m_conveyor.ballReadyToShoot() == false){
-      m_conveyor.spinHConveyor(speed);
-    }
-    if (m_conveyor.ballReadyToShoot() == true){
-      m_conveyor.spinHConveyor(0);
-    }
+    double speed = SmartDashboard.getNumber("SpinnerMotorSpeed",0.2);
+    m_spinner.spin(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_conveyor.spinHConveyor(0);
+    m_spinner.spin(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     boolean timerExpired = m_timer.hasPeriodPassed(m_period);
-    return (timerExpired || (m_conveyor.ballReadyToShoot() == true));
+    return timerExpired;
   }
 }

@@ -8,29 +8,30 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.TestingDashboard;
 
-public class Climber extends SubsystemBase {
-  private static Climber climber;
+public class Auto extends SubsystemBase {
+
+  public static Auto auto;
 
   /**
-   * Creates a new Climber.
+   * Creates a new Auto.
    */
-  private Climber() {
+  public Auto() {
 
-  }
-
-  public static Climber getInstance() {
-    if (climber == null) {
-      climber = new Climber();
-      TestingDashboard.getInstance().registerSubsystem(climber, "Climber");
-    }
-    return climber;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public static Auto getInstance(){
+    if (auto == null){
+      auto = new Auto();
+      TestingDashboard.getInstance().registerSubsystem(auto, "Auto");
+    }
+    return auto;
+  }
+
 }
