@@ -5,57 +5,62 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-// Spins the ball intake roller while command is active.
-package frc.robot.commands.BallIntake;
+package frc.robot.commands.Climb;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.TestingDashboard;
-import frc.robot.subsystems.BallIntake;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Climber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SpinIntakeRoller extends CommandBase {
-   BallIntake m_ballIntake;
-   public static final double DEF_ROLLER_SPEED = 0.5;
-   boolean m_parameterized = true;
-   double m_speed;
 
+public class Climb extends CommandBase {
   /**
-   * Creates a new SpinIntakeRoller.
+   * Creates a new Climb.
    */
-   public SpinIntakeRoller(double spinnerSpeed, boolean parameterized) {
+  Climber m_climber;
+  boolean m_parametrized = true;
+  double m_speed;
+
+
+
+  public Climb(double speed, boolean parametrized) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(BallIntake.getInstance());
-    m_ballIntake = BallIntake.getInstance();
-    m_speed = spinnerSpeed;
-    m_parameterized = parameterized;
+    addRequirements(Climber.getInstance()); 
+    m_climber = Climber.getInstance();
+    m_parametrized = parametrized;
+    m_speed = speed;
   }
 
+  
   public static void registerWithTestingDashboard() {
-    BallIntake ballIntake = BallIntake.getInstance();
-    double speed = DEF_ROLLER_SPEED;
-    SpinIntakeRoller cmd = new SpinIntakeRoller(speed, false);
-    TestingDashboard.getInstance().registerCommand(ballIntake, "Basic", cmd);
+    Climber climber = Climber.getInstance();
+    double speed = SmartDashboard.getNumber("ClimberSpeed", 0.3);
+    Climb cmd = new Climb(speed, false);
+    TestingDashboard.getInstance().registerCommand(climber, "Basic", cmd); 
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double speed = m_speed;
-    if (!m_parameterized) {
-      speed = SmartDashboard.getNumber("IntakeRollerSpeed", DEF_ROLLER_SPEED);
+    if(!m_parametrized) {
+      speed = SmartDashboard.getNumber("ClimberSpeed", 0.3);
     }
-    m_ballIntake.spinIntakeRoller(speed);
+    m_climber.setLeft(speed);
+    m_climber.setRight(-speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_ballIntake.spinIntakeRoller(0);
+    m_climber.setRight(0);
+    m_climber.setLeft(0);
   }
 
   // Returns true when the command should end.
