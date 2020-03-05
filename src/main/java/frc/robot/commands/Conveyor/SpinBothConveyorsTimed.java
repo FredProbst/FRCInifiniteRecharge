@@ -15,10 +15,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SpinBothConveyorsTimed extends CommandBase {
-  Timer m_timer;
-  Conveyor m_conveyor;
-  double m_vPeriod, m_hPeriod;
-  double m_hSpeedL, m_hSpeedR, m_vSpeed;
+  private Timer m_timer;
+  private Conveyor m_conveyor;
+  private double m_vPeriod, m_hPeriod;
+  private double m_hSpeedL, m_hSpeedR, m_vSpeed;
   private static final double HORIZONTAL_SPEED_L = 0.5;
   private static final double HORIZONTAL_SPEED_R = 0.5;
   private static final double VERTICAL_SPEED = 0.5;
@@ -67,7 +67,7 @@ public class SpinBothConveyorsTimed extends CommandBase {
     double hSpeedL = m_hSpeedL;
     double hSpeedR = m_hSpeedR;
     if (!m_parameterized) {
-      vSpeed = SmartDashboard.getNumber("ConveyorVMotorSpeed", 0.5);
+      vSpeed = SmartDashboard.getNumber("ConveyorVMotorSpeed", 1);
       hSpeedL = SmartDashboard.getNumber("ConveyorHMotor1Speed", 0.5);
       hSpeedR = SmartDashboard.getNumber("ConveyorHMotor2Speed", 0.5);
     }

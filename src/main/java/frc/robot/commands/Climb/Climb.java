@@ -14,20 +14,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class Climb extends CommandBase {
+  Climber m_climber;
+  boolean m_parameterized = true;
+  double m_speed;
+
   /**
    * Creates a new Climb.
    */
-  Climber m_climber;
-  boolean m_parametrized = true;
-  double m_speed;
-
-
-
-  public Climb(double speed, boolean parametrized) {
+  public Climb(double speed, boolean parameterized) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(Climber.getInstance()); 
     m_climber = Climber.getInstance();
-    m_parametrized = parametrized;
+    m_parameterized = parameterized;
     m_speed = speed;
   }
 
@@ -49,18 +47,16 @@ public class Climb extends CommandBase {
   @Override
   public void execute() {
     double speed = m_speed;
-    if(!m_parametrized) {
+    if(!m_parameterized) {
       speed = SmartDashboard.getNumber("ClimberSpeed", 0.3);
     }
-    m_climber.setLeft(speed);
-    m_climber.setRight(-speed);
+    m_climber.climb(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_climber.setRight(0);
-    m_climber.setLeft(0);
+    m_climber.climb(0);
   }
 
   // Returns true when the command should end.

@@ -12,12 +12,14 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Constants;
 import frc.robot.RobotMap;
 import frc.robot.TestingDashboard;
 
@@ -82,6 +84,34 @@ public class Drive extends SubsystemBase {
     return drive;
   }
 
+  //Drive Methods
+  public void tankDrive(double leftSpeed, double rightSpeed) {
+    drivetrain.tankDrive(leftSpeed, rightSpeed);
+  }
+
+  /**
+   * Controls the drivetrain with raw voltage values
+   *
+   * @param leftVoltage  voltage fed to left side
+   * @param rightVoltage voltage fed to right side
+   */
+  public void tankDriveVolts(double leftVoltage, double rightVoltage){
+    backLeft.setVoltage(leftVoltage);
+    backRight.setVoltage(rightVoltage);
+    drivetrain.feed();
+  }
+
+  public void arcadeDrive(double fwd, double rot) {
+    drive.arcadeDrive(fwd, rot);
+  }
+
+  public void setMaxOutput(double maxOutput) {
+    drive.setMaxOutput(maxOutput);
+  }
+
+  //Sensor Methods
+
+  //AHRS Methods
   public double getYaw() {
     return ahrs.getYaw();
   }
@@ -94,6 +124,19 @@ public class Drive extends SubsystemBase {
     return ahrs.getRoll();
   }
 
+  public void zeroHeading() {
+    ahrs.reset();
+  }
+
+  public double getHeading() {
+    return Math.IEEEremainder(ahrs.getAngle(), 360) * (Constants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  public double getTurnRate() {
+    return ahrs.getRate() * (Constants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  //Encoder Methods
   public Encoder getLeftEncoder(){
     return leftEncoder;
   }
@@ -102,31 +145,41 @@ public class Drive extends SubsystemBase {
     return rightEncoder;
   }
 
-  public void tankDrive(double leftSpeed, double rightSpeed) {
-    drivetrain.tankDrive(leftSpeed, rightSpeed);
+  public void resetEncoders() {
+    leftEncoder.reset();
+    rightEncoder.reset();
   }
 
-  /**
-   * Controls the drivetrain with raw voltage values
-   *
-   * @param leftVoltage  voltage fed to left side
-   * @param rightVoltage voltage fed to right side
-   */
-  public void tankDriveVoltage(double leftVoltage, double rightVoltage){
-    backLeft.setVoltage(leftVoltage);
-    backRight.setVoltage(rightVoltage);
-    drivetrain.feed();
+  public double getAverageEncoderDistance() {
+    return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2.0;
   }
+
+  //Kinematics Methods
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(leftEncoder.getRate(), rightEncoder.getRate());
+  }
+
+  public void resetOdometry(Pose2d pose) {
+    resetEncoders();
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
+  }
+
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Yaw",getYaw());
-    SmartDashboard.putNumber("Pitch",getPitch());
-    SmartDashboard.putNumber("Roll",getRoll());
-
-    m_odometry.update(Rotation2d.fromDegrees(getRoll()), leftEncoder.getDistance(),
+    m_odometry.update(Rotation2d.fromDegrees(getHeading()), leftEncoder.getDistance(),
                       rightEncoder.getDistance());
+    SmartDashboard.putNumber("Heading", getHeading());
+    SmartDashboard.putNumber("Left Dist", Drive.getInstance().getLeftEncoder().getDistance());
+    SmartDashboard.putNumber("Right Dist", Drive.getInstance().getRightEncoder().getDistance());
+    SmartDashboard.putNumber("Left Rate", Drive.getInstance().getLeftEncoder().getRate());
+    SmartDashboard.putNumber("Right Rate", Drive.getInstance().getRightEncoder().getRate());
   }
 
   @Override
